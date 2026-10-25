@@ -1,0 +1,35 @@
+from .models import Event
+from .parsers import get_parser
+from .errors import InvalidEventError
+from dataclasses import dataclass, field
+from datetime import datetime
+import logging
+
+@dataclass
+class Stats:
+    total: int = 0
+    by_level: dict = field(default_factory=dict) # default_factory (новый файл, новый словарь)
+    by_source: dict = field(default_factory=dict)
+    errors_by_source: dict = field(default_factory=dict)
+    first_ts: datetime | None = None
+    last_ts: datetime | None = None
+    skipped: int = 0
+
+    def add(self, event: Event):
+        self.total += 1 # Плюс 1 отчёт
+
+        # Здесь присваиваем вид события как ключ в левой части и заносим в словарь
+        # В правой части если нет такого ключа то возвращаем 0 и добавляем +1, и потом просто +1
+        self.by_level[event.level] = self.by_level.get(event.level, 0) + 1 
+        self.by_source[event.source] = self.by_source.get(event.source, 0) + 1
+
+        # Если событие вызвало ошибку:
+        if event.is_error():
+            self.errors_by_source[event.source] = self.errors_by_source.get(event.source, 0) + 1
+        # Если событий (и времени) ещё не было или новое время меньше самого малого текущего:    
+        if self.first_ts is None or event.timestamp < self.first_ts:
+            self.first_ts = event.timestamp
+        # Аналогично, если не было событий и текущее время больше времени самого позднего события    
+        if self.last_ts is None or event.timestamp > self.last_ts:
+            self.last_ts = event.timestamp
+
