@@ -1,5 +1,5 @@
-from .models import Event
-from .parsers import get_parser
+from .models import Event, validate_event, parse_timestamp
+from .parsers import get_parsers
 from .errors import InvalidEventError
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -15,6 +15,7 @@ class Stats:
     last_ts: datetime | None = None
     skipped: int = 0
 
+    # МЕТОД add (Добавление в статистику)
     def add(self, event: Event):
         self.total += 1 # Плюс 1 отчёт
 
@@ -33,3 +34,47 @@ class Stats:
         if self.last_ts is None or event.timestamp > self.last_ts:
             self.last_ts = event.timestamp
 
+    # МЕТОД merge (сливание другого объекта Stats в текущий)
+    def merge(self, other):
+        self.total += other.total
+        self.skipped += other.skipped
+
+        for level, count in other.by_level.items():
+            self.by_level[level] = self.by_level.get(level, 0) + count
+
+        for source, count in other.by_source.items():
+            self.by_source[source] = self.by_source.get(source, 0) + count
+
+        for source, count in other.errors_by_source.items():
+            self.errors_by_source[source] = self.errors_by_source.get(source, 0) + count
+        
+        if other.first_ts is not None:
+            if self.first_ts is None or other.first_ts < self.first_ts:
+                self.first_ts = other.first_ts 
+
+        if other.last_ts is not None:
+            if self.last_ts is None or other.last_ts > self.last_ts:
+                self.last_ts = other.last_ts 
+
+def analyze_files(paths, format, skip_invalid):
+    parser = get_parsers(format)
+    total_stats = Stats()
+
+    for path in paths:
+        file_stats = Stats()
+
+        for raw_row in parser(path):
+            try:
+                event = validate_event(raw_row)
+            except InvalidEventError:
+                if skip_invalid:
+                    logging.warning(f"Skipped invalid row in {path}")
+                    file_stats.skipped += 1
+                    continue
+                else:
+                    raise
+
+            file_stats.add(event)
+
+        total_stats.merge(file_stats)
+    return total_stats
