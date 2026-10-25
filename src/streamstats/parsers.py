@@ -10,3 +10,30 @@ def parse_csv(path):
                 continue
             yield row
 
+def parse_jsonl(path):
+    with open(path, encoding="utf-8-sig") as f:
+        for line_number, line in enumerate(f, start=1):
+            line_clean = line.strip()
+
+            if line_clean == '':
+                continue
+
+            try:
+                json_dict = json.loads(line_clean)
+            except json.JSONDecodeError:
+                raise InvalidEventError(f"invalid JSON at line {line_number}")
+
+            if not isinstance(json_dict, dict):
+                raise InvalidEventError("JSON must be an object")
+
+            yield json_dict
+
+def get_parsers(format_name):
+    if format_name == 'csv':
+        return parse_csv
+    elif format_name == 'jsonl':
+        return parse_jsonl
+    else:
+        raise UnsupportedFormatError(f"unsupported format: {format_name}")
+    
+
