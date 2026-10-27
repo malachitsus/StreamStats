@@ -5,6 +5,9 @@ from .errors import InvalidEventError, UnsupportedFormatError
 
 
 def parse_csv(path):
+    """
+    Читает CSV-файл построчно и возвращает словари (по одному за раз).
+    """
     with open(path, encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -13,6 +16,9 @@ def parse_csv(path):
             yield row
 
 def parse_jsonl(path):
+    """
+    Читает JSONL-файл построчно, парсит каждую строку как JSON и возвращает словари.
+    """
     with open(path, encoding="utf-8-sig") as f:
         for line_number, line in enumerate(f, start=1):
             line_clean = line.strip()
@@ -31,11 +37,12 @@ def parse_jsonl(path):
             yield json_dict
 
 def get_parsers(format_name):
+    """
+    Возвращает функцию-парсер (parse_csv или parse_jsonl) в зависимости от формата.
+    """
     if format_name == 'csv':
         return parse_csv
     elif format_name == 'jsonl':
         return parse_jsonl
     else:
         raise UnsupportedFormatError(f"unsupported format: {format_name}")
-    
-

@@ -2,7 +2,9 @@ import json
 
 
 def build_report(total_stats):
-
+    """
+    Собирает статистику из объекта Stats в словарь для JSON-отчета.
+    """
     if total_stats.first_ts is not None:
         first_str = total_stats.first_ts.isoformat()
     else:
@@ -32,9 +34,8 @@ def build_report(total_stats):
     return report_dict
 
 def write_report(report_dict, r_path):
+    """
+    Записывает словарь с отчетом в файл в формате JSON.
+    """
     with open(r_path, mode="w", encoding='utf-8') as report:
         json.dump(report_dict, report, ensure_ascii=False, indent=2)
-
-    
-
-    

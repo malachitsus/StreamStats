@@ -1,23 +1,30 @@
-
 from dataclasses import dataclass
 from datetime import datetime
 
+from .constants import ALLOWED_LEVELS, ERROR_LEVELS
 from .errors import InvalidEventError, InvalidTimestampError
 
-ALLOWED_LEVELS = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
-ERROR_LEVELS = {"ERROR", "CRITICAL"}
 
 @dataclass(frozen=True)
 class Event:
+    """
+    Модель события лога.
+    """
     timestamp: datetime
     level: str
     source: str
     message: str
 
     def is_error(self):
+        """
+        Возвращает True, если уровень события ERROR или CRITICAL.
+        """
         return self.level in ERROR_LEVELS
 
 def parse_timestamp(timestamp):
+    """
+    Парсит строку в формате ISO 8601 в объект datetime.
+    """
     if not isinstance(timestamp, str) or timestamp == "":
         raise InvalidTimestampError("timestamp is required")
 
@@ -30,6 +37,9 @@ def parse_timestamp(timestamp):
         raise InvalidTimestampError(f"cannot formated from ISO: {timestamp!r}")
 
 def validate_event(raw):
+    """
+    Валидирует словарь с данными и возвращает объект Event.
+    """
     for field in ["timestamp", "level", "source", "message"]:
         if field not in raw or raw[field] is None:
             raise InvalidEventError(f"missing field: {field!r}")

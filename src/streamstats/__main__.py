@@ -7,6 +7,9 @@ from .report import build_report, write_report
 
 
 def create_parser():
+    """
+    Создает и настраивает парсер аргументов командной строки.
+    """
     parser = argparse.ArgumentParser(description="StreamStats log analyzer")
     subparsers = parser.add_subparsers(dest="command")
     
@@ -20,6 +23,9 @@ def create_parser():
     return parser
 
 def main(argv=None):
+    """
+    Главная точка входа CLI: разбирает аргументы и управляет процессом анализа.
+    """
     parser = create_parser()
     args = parser.parse_args(argv)
 
@@ -45,4 +51,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     sys.exit(main()) # sys.exit для того чтобы ос поняла коды возврата
-        

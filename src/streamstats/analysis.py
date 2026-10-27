@@ -11,6 +11,9 @@ from .parsers import get_parsers
 
 @dataclass
 class Stats:
+    """
+    Класс для хранения и агрегации статистики по событиям.
+    """
     total: int = 0
     by_level: dict = field(default_factory=dict) # default_factory (новый файл, новый словарь)
     by_source: dict = field(default_factory=dict)
@@ -21,6 +24,9 @@ class Stats:
 
     # МЕТОД add (Добавление в статистику)
     def add(self, event: Event):
+        """
+        Добавляет одно событие в статистику (обновляет счетчики и время).
+        """
         self.total += 1 # Плюс 1 отчёт
 
         # Здесь присваиваем вид события как ключ в левой части и заносим в словарь
@@ -40,6 +46,9 @@ class Stats:
 
     # МЕТОД merge (сливание другого объекта Stats в текущий)
     def merge(self, other):
+        """
+        Объединяет статистику из другого объекта Stats в текущий.
+        """
         self.total += other.total
         self.skipped += other.skipped
 
@@ -59,6 +68,9 @@ class Stats:
             self.last_ts = other.last_ts
 
     def top_errors(self):
+        """
+        Возвращает топ-5 источников с наибольшим количеством ошибок.
+        """
         # Превращаем словарь в список кортежей
         items = list(self.errors_by_source.items())
         
@@ -72,6 +84,9 @@ class Stats:
         return items[:5]
 
 def analyze_files(paths, format, skip_invalid):
+    """
+    Читает файлы, валидирует события и возвращает общую статистику.
+    """
     parser = get_parsers(format)
     total_stats = Stats()
 
