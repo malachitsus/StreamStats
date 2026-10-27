@@ -1,5 +1,5 @@
-import pytest
 from streamstats.analysis import analyze_files
+
 
 def test_analyze_files_csv(tmp_path):
     # Создаем временный CSV файл

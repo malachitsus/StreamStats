@@ -1,9 +1,13 @@
-from .models import Event, validate_event, parse_timestamp
-from .parsers import get_parsers
-from .errors import InvalidEventError
+import logging
+
+logger = logging.getLogger(__name__) # свой логгер
 from dataclasses import dataclass, field
 from datetime import datetime
-import logging
+
+from .errors import InvalidEventError
+from .models import Event, validate_event
+from .parsers import get_parsers
+
 
 @dataclass
 class Stats:
@@ -48,13 +52,11 @@ class Stats:
         for source, count in other.errors_by_source.items():
             self.errors_by_source[source] = self.errors_by_source.get(source, 0) + count
         
-        if other.first_ts is not None:
-            if self.first_ts is None or other.first_ts < self.first_ts:
-                self.first_ts = other.first_ts 
+        if other.first_ts is not None and (self.first_ts is None or other.first_ts < self.first_ts):
+            self.first_ts = other.first_ts
 
-        if other.last_ts is not None:
-            if self.last_ts is None or other.last_ts > self.last_ts:
-                self.last_ts = other.last_ts 
+        if other.last_ts is not None and (self.last_ts is None or other.last_ts > self.last_ts):
+            self.last_ts = other.last_ts
 
     def top_errors(self):
         # Превращаем словарь в список кортежей
@@ -81,7 +83,7 @@ def analyze_files(paths, format, skip_invalid):
                 event = validate_event(raw_row)
             except InvalidEventError:
                 if skip_invalid:
-                    logging.warning(f"Skipped invalid row in {path}")
+                    logger.warning(f"Skipped invalid row in {path}")
                     file_stats.skipped += 1
                     continue
                 else:

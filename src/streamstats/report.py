@@ -1,5 +1,6 @@
 import json
 
+
 def build_report(total_stats):
 
     if total_stats.first_ts is not None:

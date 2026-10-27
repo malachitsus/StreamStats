@@ -1,7 +1,7 @@
 import pytest
-from streamstats.models import validate_event
-from streamstats.errors import InvalidEventError, InvalidTimestampError
 
+from streamstats.errors import InvalidEventError, InvalidTimestampError
+from streamstats.models import validate_event
 
 
 def test_validate_valid_event():

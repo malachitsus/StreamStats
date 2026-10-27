@@ -1,6 +1,7 @@
 import pytest
-from streamstats.parsers import parse_csv, parse_jsonl
+
 from streamstats.errors import InvalidEventError
+from streamstats.parsers import parse_csv, parse_jsonl
 
 # ============ ТЕСТЫ ДЛЯ CSV ======================
 

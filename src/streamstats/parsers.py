@@ -1,6 +1,8 @@
 import csv
 import json
+
 from .errors import InvalidEventError, UnsupportedFormatError
+
 
 def parse_csv(path):
     with open(path, encoding="utf-8-sig", newline="") as f:

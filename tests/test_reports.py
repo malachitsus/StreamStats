@@ -1,6 +1,8 @@
-from streamstats.report import build_report, write_report
-from streamstats.analysis import Stats
 import json
+
+from streamstats.analysis import Stats
+from streamstats.report import build_report, write_report
+
 
 def test_build_and_write_report(tmp_path):
     # Пустая статистика
