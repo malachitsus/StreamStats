@@ -94,17 +94,19 @@ def analyze_files(paths, format, skip_invalid):
         file_stats = Stats()
 
         for raw_row in parser(path):
+            line_num = raw_row["_line_num"]  
             try:
                 event = validate_event(raw_row)
-            except InvalidEventError:
+            except InvalidEventError as e:
                 if skip_invalid:
-                    logger.warning(f"Skipped invalid row in {path}")
+                    logger.warning(f"Skipped invalid row in {path} at line {line_num}")
                     file_stats.skipped += 1
                     continue
                 else:
-                    raise
+                    raise InvalidEventError(f"{path}, line {line_num}: {e}") from e
 
             file_stats.add(event)
 
         total_stats.merge(file_stats)
+        
     return total_stats

@@ -10,10 +10,17 @@ def parse_csv(path):
     """
     with open(path, encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
-        for row in reader:
+        for line_number, row in enumerate(reader, start=2):
+            # 1. Проверяем на пустоту
             if all(v is None or v == "" for v in row.values()):
                 continue
-            yield row
+            
+            # 2. Создаем НОВЫЙ словарь (копию) и добавляем туда номер строки
+            new_row = dict(row)
+            new_row["_line_num"] = line_number 
+            
+            # 3. Отдаем новый словарь
+            yield new_row
 
 def parse_jsonl(path):
     """
@@ -29,11 +36,13 @@ def parse_jsonl(path):
             try:
                 json_dict = json.loads(line_clean)
             except json.JSONDecodeError:
+                # Тут сразу добавляем номер строки в ошибку
                 raise InvalidEventError(f"invalid JSON at line {line_number}")
 
             if not isinstance(json_dict, dict):
-                raise InvalidEventError("JSON must be an object")
+                raise InvalidEventError(f"JSON must be an object at line {line_number}")
 
+            json_dict["_line_num"] = line_number  
             yield json_dict
 
 def get_parsers(format_name):
