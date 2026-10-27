@@ -56,6 +56,19 @@ class Stats:
             if self.last_ts is None or other.last_ts > self.last_ts:
                 self.last_ts = other.last_ts 
 
+    def top_errors(self):
+        # Превращаем словарь в список кортежей
+        items = list(self.errors_by_source.items())
+        
+        # 2. Сортируем по значению (count) по убыванию
+        # x[1] — это второе значение в паре (сам count)
+        # reverse=True — от большего к меньшему
+        # key=lambda x: (x[1]) — сортируем по убыванию количества ошибок
+        items.sort(key=lambda x: x[1], reverse=True)
+        
+        # 3. Возвращаем первые 5
+        return items[:5]
+
 def analyze_files(paths, format, skip_invalid):
     parser = get_parsers(format)
     total_stats = Stats()
